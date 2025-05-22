@@ -498,7 +498,7 @@
 export default {
   name: "App",
   mounted() {
-    $(document).trigger("change");
+    $(document).trigger("changed");
   },
 };
 </script>

@@ -165,29 +165,17 @@
                     <h4>Select Categories</h4>
                     <div class="checkbox-item">
                       <form>
-                        <div class="form-group">
-                          <input type="checkbox" id="bedroom" />
-                          <label for="bedroom">Bedroom</label>
-                        </div>
-                        <div class="form-group">
-                          <input type="checkbox" id="decoration" />
-                          <label for="decoration">Decoration</label>
-                        </div>
-                        <div class="form-group">
-                          <input type="checkbox" id="kitchen" />
-                          <label for="kitchen">Kitchen</label>
-                        </div>
-                        <div class="form-group">
-                          <input type="checkbox" id="clothing" />
-                          <label for="clothing">Clothing</label>
-                        </div>
-                        <div class="form-group">
-                          <input type="checkbox" id="office" />
-                          <label for="office">Office</label>
-                        </div>
-                        <div class="form-group m-0">
-                          <input type="checkbox" id="lighting" />
-                          <label for="lighting">Lighting</label>
+                        <div
+                          v-for="category in filterList.categories"
+                          class="form-group"
+                        >
+                          <input
+                            type="checkbox"
+                            :id="category.id"
+                            :value="category.id"
+                            v-model="categories"
+                          />
+                          <label :for="category.id">{{ category.title }}</label>
                         </div>
                       </form>
                     </div>
@@ -195,54 +183,14 @@
                   <div class="single-sidebar-box mt-30 wow fadeInUp animated">
                     <h4>Color Option</h4>
                     <ul class="color-option">
-                      <li>
-                        <a href="#0" class="color-option-single">
-                          <span> Black</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#0" class="color-option-single bg2">
-                          <span> Yellow</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#0" class="color-option-single bg3">
-                          <span> Red</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#0" class="color-option-single bg4">
-                          <span> Blue</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#0" class="color-option-single bg5">
-                          <span> Green</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#0" class="color-option-single bg6">
-                          <span> Olive</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#0" class="color-option-single bg7">
-                          <span> Lime</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#0" class="color-option-single bg8">
-                          <span> Pink</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#0" class="color-option-single bg9">
-                          <span> Cyan</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a href="#0" class="color-option-single bg10">
-                          <span> Magenta</span>
+                      <li v-for="color in filterList.colors">
+                        <a
+                          @click.prevent="addColor(color.id)"
+                          href="#0"
+                          class="color-option-single"
+                          :style="`background: #${color.title}`"
+                        >
+                          <span>{{ color.title }}</span>
                         </a>
                       </li>
                     </ul>
@@ -255,7 +203,13 @@
                         <label for="priceRange">Price:</label>
                         <input type="text" id="priceRange" readonly />
                       </div>
-                      <button class="filterbtn" type="submit">Filter</button>
+                      <button
+                        @click.prevent="filterProducts"
+                        class="filterbtn"
+                        type="submit"
+                      >
+                        Filter
+                      </button>
                     </div>
                   </div>
                   <div
@@ -263,20 +217,11 @@
                   >
                     <h4>Tags</h4>
                     <ul class="popular-tag">
-                      <li><a href="#0">Tools</a></li>
-                      <li><a href="#0">Store</a></li>
-                      <li><a href="#0">Decoration</a></li>
-                      <li><a href="#0">Online</a></li>
-                      <li><a href="#0">Furnitures</a></li>
-                      <li><a href="#0">Beauty</a></li>
-                      <li><a href="#0">Fashion</a></li>
-                      <li><a href="#0">Office</a></li>
-                      <li><a href="#0">Clothing</a></li>
-                      <li><a href="#0">Interior</a></li>
-                      <li><a href="#0">Good</a></li>
-                      <li><a href="#0">Standard</a></li>
-                      <li><a href="#0">Chair’s</a></li>
-                      <li><a href="#0">Living Room</a></li>
+                      <li v-for="tag in filterList.tags">
+                        <a @click.prevent="addTag(tag.id)" href="#0">{{
+                          tag.title
+                        }}</a>
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -402,7 +347,11 @@
                                     </a>
                                   </li>
                                   <li>
-                                    <a href="#popup5" class="popup_link">
+                                    <a
+                                      @click="getProduct(product.id)"
+                                      :href="`#popup${product.id}`"
+                                      class="popup_link"
+                                    >
                                       <i class="flaticon-visibility"></i>
                                       <span> quick view</span>
                                     </a>
@@ -411,44 +360,49 @@
                               </div>
                             </div>
                             <div
-                              id="popup5"
+                              :id="`popup${product.id}`"
                               class="product-gird__quick-view-popup mfp-hide"
                             >
-                              <div class="container">
+                              <div v-if="popupProduct" class="container">
                                 <div
                                   class="row justify-content-between align-items-center"
                                 >
                                   <div class="col-lg-6">
-                                    <div class="quick-view__left-content">
+                                    <div
+                                      v-if="
+                                        popupProduct.product_images.length > 2
+                                      "
+                                      class="quick-view__left-content"
+                                    >
                                       <div class="tabs">
                                         <div class="popup-product-thumb-box">
                                           <ul>
                                             <li
+                                              v-for="(
+                                                productImage, index
+                                              ) in popupProduct.product_images"
+                                              :key="productImage.id || index"
                                               class="tab-nav popup-product-thumb"
+                                              role="tab"
+                                              :aria-controls="`tabb${productImage.id}`"
+                                              :aria-selected="
+                                                index === 0 ? 'true' : 'false'
+                                              "
+                                              :aria-expanded="
+                                                index === 0 ? 'true' : 'false'
+                                              "
+                                              :tabindex="index === 0 ? 0 : -1"
                                             >
-                                              <a href="#tabb1">
+                                              <a
+                                                class="ui-tabs-anchor"
+                                                :id="`ui-id-${index + 1}`"
+                                                :href="`#tabb${
+                                                  productImage.id || index
+                                                }`"
+                                                tabindex="-1"
+                                              >
                                                 <img
-                                                  src="src/assets/images/shop/products-v6-img5.jpg"
-                                                  alt=""
-                                                />
-                                              </a>
-                                            </li>
-                                            <li
-                                              class="tab-nav popup-product-thumb"
-                                            >
-                                              <a href="#tabb2">
-                                                <img
-                                                  src="src/assets/images/shop/products-v6-img6.jpg"
-                                                  alt=""
-                                                />
-                                              </a>
-                                            </li>
-                                            <li
-                                              class="tab-nav popup-product-thumb"
-                                            >
-                                              <a href="#tabb3">
-                                                <img
-                                                  src="src/assets/images/shop/products-v6-img7.jpg"
+                                                  :src="productImage.url"
                                                   alt=""
                                                 />
                                               </a>
@@ -459,40 +413,30 @@
                                           class="popup-product-main-image-box"
                                         >
                                           <div
-                                            id="tabb1"
+                                            v-for="(
+                                              productImage, index
+                                            ) in popupProduct.product_images"
+                                            :id="`tabb${
+                                              productImage.id || index
+                                            }`"
                                             class="tab-item popup-product-image"
+                                            role="tabpanel"
+                                            :aria-labelledby="`ui-id-${
+                                              index + 1
+                                            }`"
+                                            :aria-hidden="
+                                              index === 0 ? 'false' : 'true'
+                                            "
+                                            :style="{
+                                              display:
+                                                index === 0 ? '' : 'none',
+                                            }"
                                           >
                                             <div
                                               class="popup-product-single-image"
                                             >
                                               <img
-                                                src="src/assets/images/shop/products-v6-img5.jpg"
-                                                alt=""
-                                              />
-                                            </div>
-                                          </div>
-                                          <div
-                                            id="tabb2"
-                                            class="tab-item popup-product-image"
-                                          >
-                                            <div
-                                              class="popup-product-single-image"
-                                            >
-                                              <img
-                                                src="src/assets/images/shop/products-v6-img6.jpg"
-                                                alt=""
-                                              />
-                                            </div>
-                                          </div>
-                                          <div
-                                            id="tabb3"
-                                            class="tab-item popup-product-image"
-                                          >
-                                            <div
-                                              class="popup-product-single-image"
-                                            >
-                                              <img
-                                                src="src/assets/images/shop/products-v6-img7.jpg"
+                                                :src="productImage.url"
                                                 alt=""
                                               />
                                             </div>
@@ -509,7 +453,7 @@
                                   </div>
                                   <div class="col-lg-6">
                                     <div class="popup-right-content">
-                                      <h3>Brown Office Shoe</h3>
+                                      <h3>{{ popupProduct.title }}</h3>
                                       <div class="ratting">
                                         <i class="flaticon-star"></i>
                                         <i class="flaticon-star"></i>
@@ -519,29 +463,33 @@
                                         <span>(112)</span>
                                       </div>
                                       <p class="text">
-                                        Hydrating Plumping Intense Shine Lip
-                                        Colour
+                                        {{ popupProduct.description }}
                                       </p>
                                       <div class="price">
-                                        <h2>$42 USD <del> $65 USD</del></h2>
+                                        <h2>
+                                          ${{ popupProduct.price
+                                          }}<del>
+                                            ${{ popupProduct.old_price }}</del
+                                          >
+                                        </h2>
                                         <h6>In stuck</h6>
                                       </div>
                                       <div class="color-varient">
-                                        <a href="#0" class="color-name pink">
-                                          <span>Pink</span>
-                                        </a>
-                                        <a href="#0" class="color-name red">
-                                          <span>Red</span>
-                                        </a>
-                                        <a href="#0" class="color-name yellow"
-                                          ><span>Yellow</span>
-                                        </a>
-                                        <a href="#0" class="color-name blue">
-                                          <span>Blue</span>
-                                        </a>
-                                        <a href="#0" class="color-name black">
-                                          <span>Black</span>
-                                        </a>
+                                        <template
+                                          v-for="groupProduct in popupProduct.group_products"
+                                        >
+                                          <a
+                                            @click.prevent="
+                                              getProduct(groupProduct.id)
+                                            "
+                                            v-for="color in groupProduct.colors"
+                                            :style="`background: #${color.title};`"
+                                            href="#0"
+                                            class="color-name"
+                                          >
+                                            <span>{{ color.title }}</span>
+                                          </a>
+                                        </template>
                                       </div>
                                       <div class="add-product">
                                         <h6>Qty:</h6>
@@ -604,13 +552,17 @@
                                   {{ product.title }}
                                 </a>
                               </h5>
-                              <p><del>$200.00</del> ${{ product.price }}</p>
+                              <p>
+                                <del>${{ product.old_price }}</del> ${{
+                                  product.price
+                                }}
+                              </p>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <div
+                    <!-- <div
                       class="tab-pane fade"
                       id="pills-list"
                       role="tabpanel"
@@ -3427,7 +3379,7 @@
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </div> -->
                   </div>
                 </div>
               </div>
@@ -3469,17 +3421,126 @@ export default {
   mounted() {
     $(document).trigger("change");
     this.getProducts();
+    this.getFilterList();
+  },
+  watch: {
+    popupProduct(newVal) {
+      if (newVal && newVal.product_images.length > 2) {
+        this.$nextTick(() => {
+          const popupSelector = `#popup${newVal.id} .tabs`;
+          const $tabs = $(popupSelector);
+          if ($tabs.length && !$tabs.hasClass("ui-tabs")) {
+            $tabs.tabs();
+          }
+          console.log(document.querySelector(`#popup${newVal.id} .tabs`));
+        });
+      }
+    },
   },
   data() {
     return {
       products: [],
+      popupProduct: null,
+      filterList: [],
+      categories: [],
+      colors: [],
+      tags: [],
+      prices: [],
     };
   },
   methods: {
+    filterProducts() {
+      let prices = $("#priceRange").val();
+
+      this.prices = prices.replace(/[\s+]|[$]/g, "").split("-");
+
+      this.axios
+        .post(`http://localhost:8876/api/products`, {
+          categories: this.categories,
+          colors: this.colors,
+          tags: this.tags,
+          prices: this.prices,
+        })
+        .then((res) => {
+          console.log(res);
+          this.products = res.data.data;
+        })
+        .finally((v) => {
+          $(document).trigger("changed");
+        });
+
+      console.log(prices);
+    },
+    addColor(id) {
+      if (!this.colors.includes(id)) {
+        this.colors.push(id);
+      } else {
+        this.colors = this.colors.filter((color) => {
+          return color !== id;
+        });
+      }
+    },
+    addTag(id) {
+      if (!this.tags.includes(id)) {
+        this.tags.push(id);
+      } else {
+        this.tags = this.tags.filter((tag) => {
+          return tag !== id;
+        });
+      }
+    },
     getProducts() {
-      this.axios.get("http://localhost:8876/api/products").then((res) => {
-        this.products = res.data.data;
-      });
+      this.axios
+        .post(`http://localhost:8876/api/products`, {})
+        .then((res) => {
+          console.log(res);
+          this.products = res.data.data;
+        })
+        .finally((v) => {
+          $(document).trigger("changed");
+        });
+    },
+    getProduct(id) {
+      this.axios
+        .get(`http://localhost:8876/api/products/${id}`)
+        .then((res) => {
+          this.popupProduct = res.data.data;
+          console.log(res);
+        })
+        .finally((v) => {
+          $(document).trigger("changed");
+        });
+    },
+    getFilterList() {
+      this.axios
+        .get(`http://localhost:8876/api/products/filters`)
+        .then((res) => {
+          this.filterList = res.data;
+
+          //  Price Filter
+          if ($("#price-range").length) {
+            $("#price-range").slider({
+              range: true,
+              min: this.filterList.price.min,
+              max: this.filterList.price.max,
+              values: [this.filterList.price.min, this.filterList.price.max],
+              slide: function (event, ui) {
+                $("#priceRange").val(
+                  "$" + ui.values[0] + " - $" + ui.values[1]
+                );
+              },
+            });
+            $("#priceRange").val(
+              "$" +
+                $("#price-range").slider("values", 0) +
+                " - $" +
+                $("#price-range").slider("values", 1)
+            );
+          }
+        })
+        .finally((v) => {
+          $(document).trigger("changed");
+        });
     },
   },
 };

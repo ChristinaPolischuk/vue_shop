@@ -2,7 +2,7 @@ jQuery(
   (function ($) {
     "use strict";
 
-    $(document).on("change", function () {
+    $(document).on("changed", function () {
       /****======  Sticky Header ======*******/
       var scrollPosition = window.scrollY;
       if (scrollPosition >= 400) {
@@ -1006,25 +1006,6 @@ jQuery(
           $(this).hide();
           $(".eye .icon-2").css("display", "block");
         });
-      }
-
-      //  Price Filter
-      if ($("#price-range").length) {
-        $("#price-range").slider({
-          range: true,
-          min: 0,
-          max: 200000,
-          values: [0, 200000],
-          slide: function (event, ui) {
-            $("#priceRange").val("$" + ui.values[0] + " - $" + ui.values[1]);
-          },
-        });
-        $("#priceRange").val(
-          "$" +
-            $("#price-range").slider("values", 0) +
-            " - $" +
-            $("#price-range").slider("values", 1)
-        );
       }
 
       /****======  Bottom to Top Scroll Js  ======*******/
